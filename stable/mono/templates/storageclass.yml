@@ -1,0 +1,15 @@
+{{- $namespace := .Release.Namespace -}}
+{{- $persistence := .Values.persistence -}}
+{{- $storageClass := .Values.persistence.storageClass -}}
+
+{{- if and $persistence.enabled $storageClass.createNew }}
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: {{ $storageClass.name }}
+provisioner: {{ $storageClass.provisioner }}
+parameters:
+{{ toYaml $storageClass.parameters | indent 2 }}
+volumeBindingMode: WaitForFirstConsumer
+{{- end }}

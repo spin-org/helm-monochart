@@ -1,0 +1,32 @@
+{{- $enabled_svc := .Values.svc.enabled }}
+
+{{- if or (eq .Values.arch "ing-svc-deployment-hpa") (eq .Values.arch "istio-ing-svc-deployment-hpa") }}
+  {{- $enabled_svc = true }}
+{{- end }}
+
+{{- if $enabled_svc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+    {{ $name }}: {{ $value }}
+{{- end }}{{- end }}{{- else }}
+    name: {{ .Values.name }}
+{{- end }}
+spec:
+  ports:
+  - name: http
+    port: {{ .Values.port }}
+    protocol: TCP
+    targetPort: {{ .Values.port }}
+  selector:
+{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+    {{ $name }}: {{ $value }}
+{{- end }}{{- end }}{{- else }}
+    name: {{ .Values.name }}
+{{- end }}
+{{- end }}

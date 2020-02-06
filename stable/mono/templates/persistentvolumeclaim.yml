@@ -1,0 +1,19 @@
+{{- $namespace := .Release.Namespace -}}
+
+{{- if .Values.persistence.enabled }}
+  {{ range $claim := .Values.persistence.claims }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $claim.name }}
+  namespace: {{ $namespace }}
+spec:
+  accessModes:
+{{ toYaml $claim.accessModes | indent 2 }}
+  resources:
+    requests:
+      storage: {{ $claim.storage }}
+  storageClassName: {{ $claim.class }}
+  {{- end }}
+{{- end }}

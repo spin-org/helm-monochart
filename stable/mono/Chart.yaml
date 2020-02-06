@@ -1,0 +1,4 @@
+apiVersion: v1
+name: monochart
+version: 0.0.1
+description: One Helm chart to rule them all

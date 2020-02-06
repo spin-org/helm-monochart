@@ -1,0 +1,115 @@
+{{- $enabled_deployment := .Values.deployment.enabled }}
+{{- $enabled_ing := .Values.ing.enabled }}
+{{- $enabled_svc := .Values.svc.enabled }}
+{{- $command := .Values.pod.command }}
+{{- $initContainers := .Values.pod.initContainers }}
+{{- $enabled_istio := .Values.istio.enabled }}
+
+{{- if or (eq .Values.arch "ing-svc-deployment-hpa") (eq .Values.arch "istio-ing-svc-deployment-hpa") }}
+  {{- $enabled_deployment = true }}
+  {{- $enabled_istio = true }}
+  {{- $enabled_ing = true }}
+  {{- $enabled_svc = true }}
+{{- end }}
+
+{{- if eq .Values.arch "deployment" }}
+  {{- $enabled_deployment = true }}
+{{- end }}
+
+{{- if $enabled_deployment }}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+    {{ $name }}: {{ $value }}
+{{- end }}{{- end }}{{- else }}
+    name: {{ .Values.name }}
+{{- end }}
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  progressDeadlineSeconds: {{ .Values.deployment.progressDeadlineSeconds }}
+  replicas: {{ .Values.deployment.replicas }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+      {{ $name }}: {{ $value }}
+{{- end }}{{- end }}{{- else }}
+      name: {{ .Values.name }}
+{{- end }}
+  strategy:
+{{ toYaml .Values.deployment.strategy | indent 4 }}
+  template:
+    metadata:
+      annotations:
+        iam.amazonaws.com/role: {{ .Values.pod.iam_role }}
+        sidecar.istio.io/inject: "{{ $enabled_istio }}"
+      labels:
+{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+        {{ $name }}: {{ $value }}
+{{- end }}{{- end }}{{- else }}
+        name: {{ .Values.name }}
+{{- end }}
+    spec:
+      initContainers:
+{{ toYaml $initContainers | indent 8 }}
+      containers:
+      - name: {{ .Values.name }}
+{{- if $command.override }}
+        command:
+{{ toYaml $command.command | indent 8 }}
+        args:
+{{ toYaml $command.args | indent 8 }}
+{{- end }}
+        env:
+{{- range $name, $value := .Values.pod.env }}{{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+{{- end }}{{- end }}
+        image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
+        imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
+{{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
+        ports:
+        - containerPort: {{ .Values.port }}
+{{- end }}
+{{- if and (not .Values.pod.readinessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
+        {{- with .Values.pod.readinessProbe }}
+        readinessProbe:
+          {{- . | toYaml | nindent 12 }}
+        {{- end }}
+{{- end }}
+{{- if and (not .Values.pod.livenessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
+        {{- with .Values.pod.livenessProbe }}
+        livenessProbe:
+          {{- . | toYaml | nindent 12 }}
+        {{- end }}
+{{- end }}
+        resources:
+{{ toYaml .Values.pod.resources | indent 10 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+{{- if .Values.persistence.enabled }}
+        volumeMounts:
+  {{- range $claim := .Values.persistence.claims }}
+        - name: {{ $claim.name }}
+          mountPath: {{ $claim.path }}
+  {{- end }}
+{{- end }}
+      dnsPolicy: {{ .Values.pod.dnsPolicy }}
+      restartPolicy: {{ .Values.pod.restartPolicy }}
+      schedulerName: {{ .Values.pod.schedulerName }}
+      securityContext:
+{{ toYaml .Values.pod.securityContext | indent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
+{{- if .Values.persistence.enabled }}
+      volumes:
+  {{- range $claim := .Values.persistence.claims }}
+      - name: {{ $claim.name }}
+        persistentVolumeClaim:
+          claimName: {{ $claim.name }}
+  {{- end }}
+{{- end }}
+{{- end }}
