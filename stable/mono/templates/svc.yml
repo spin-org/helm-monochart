@@ -11,6 +11,11 @@ kind: Service
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+{{- if .Values.svc.annotations }}{{- range $name, $value := .Values.svc.annotations }}{{- if not (empty $value) }}
+    {{/*  Annottations should be quoted: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/  */}}
+    {{ $name }}: {{ $value | quote }}
+{{- end }}{{- end }}{{- end }}
   labels:
 {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
     {{ $name }}: {{ $value }}
@@ -18,11 +23,14 @@ metadata:
     name: {{ .Values.name }}
 {{- end }}
 spec:
+  type: {{ .Values.svc.type }}
   ports:
-  - name: http
-    port: {{ .Values.port }}
-    protocol: TCP
-    targetPort: {{ .Values.port }}
+{{- range .Values.svc.ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    protocol: {{ .protocol }}
+    targetPort: {{ .targetPort }}
+{{- end }}
   selector:
 {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
     {{ $name }}: {{ $value }}

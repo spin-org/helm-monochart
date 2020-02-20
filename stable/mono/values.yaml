@@ -11,7 +11,7 @@ pod:
   enabled_port: false
 
   dnsPolicy: ClusterFirst
-  iam_role: rendered_from_helmfile
+  iam_role: false
   imagePullPolicy: IfNotPresent
   image_name: rendered_from_helmfile
   image_tag: rendered_from_helmfile
@@ -30,25 +30,25 @@ pod:
 
   securityContext: {}
 
-  env: renedered_from_helmfile
+  env: rendered_from_helmfile
 
   livenessProbeDisabled: false
   livenessProbe:
-    # httpGet:
-    #   path: /ping
-    # initialDelaySeconds: 30
-    # timeoutSeconds: 1
-    # periodSeconds: 15
-    # failureThreshold: 2
+  # httpGet:
+  #   path: /ping
+  # initialDelaySeconds: 30
+  # timeoutSeconds: 1
+  # periodSeconds: 15
+  # failureThreshold: 2
 
   readinessProbeDisabled: false
   readinessProbe:
-    # httpGet:
-    #   path: /ping
-    # initialDelaySeconds: 30
-    # timeoutSeconds: 1
-    # periodSeconds: 15
-    # failureThreshold: 2
+  # httpGet:
+  #   path: /ping
+  # initialDelaySeconds: 30
+  # timeoutSeconds: 1
+  # periodSeconds: 15
+  # failureThreshold: 2
 
   resources:
     limits:
@@ -66,6 +66,10 @@ deployment:
   replicas: 3
   revisionHistoryLimit: 3
   progressDeadlineSeconds: 600
+  spec:
+    template:
+      metadata:
+        annotations: {}
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -116,24 +120,24 @@ persistence:
   storageClass:
     createNew: false
     azs:
-    - us-east-1a
-    - us-east-1b
-    - us-east-1c
-    - us-east-1d
-    - us-east-1e
-    - us-east-1f
+      - us-east-1a
+      - us-east-1b
+      - us-east-1c
+      - us-east-1d
+      - us-east-1e
+      - us-east-1f
     name: helmfile
     parameters:
       type: gp2
       encrypted: "true"
     provisioner: kubernetes.io/aws-ebs
   claims:
-  - name: helmfile
-    class: gp2
-    storage: 2Gi
-    path: /opt/
-    accessModes:
-    - ReadWriteOnce
+    - name: helmfile
+      class: gp2
+      storage: 2Gi
+      path: /opt/
+      accessModes:
+        - ReadWriteOnce
 
 # Defaults: Istio
 istio:
