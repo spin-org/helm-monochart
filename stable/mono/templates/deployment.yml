@@ -45,7 +45,9 @@ spec:
   template:
     metadata:
       annotations:
+
 {{- if .Values.deployment.annotations }}{{- range $name, $value := .Values.deployment.annotations }}{{- if not (empty $value) }}
+        {{/*  Annottations should be quoted: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/  */}}
         {{ $name }}: {{ $value | quote }}
 {{- end }}{{- end }}{{- end }}
 {{- if .Values.pod.iam_role }}

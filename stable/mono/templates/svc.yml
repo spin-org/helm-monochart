@@ -13,11 +13,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
 {{- if .Values.svc.annotations }}{{- range $name, $value := .Values.svc.annotations }}{{- if not (empty $value) }}
+    {{/*  Annottations should be quoted: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/  */}}
     {{ $name }}: {{ $value | quote }}
 {{- end }}{{- end }}{{- end }}
   labels:
 {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
-    {{ $name }}: {{ $value | quote }}
+    {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
     name: {{ .Values.name }}
 {{- end }}
