@@ -23,7 +23,7 @@ kind: Deployment
 metadata:
   labels:
 {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
-    {{ $name }}: {{ $value | quote }}
+    {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
     name: {{ .Values.name }}
 {{- end }}
