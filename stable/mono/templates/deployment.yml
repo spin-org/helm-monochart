@@ -87,7 +87,11 @@ spec:
         imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
 {{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
         ports:
-        - containerPort: {{ .Values.port }}
+{{- range .Values.pod.containerPorts }}
+        - name: {{ .name }}
+          containerPort: {{ .port }}
+          protocol: {{ .protocol }}
+{{- end }}
 {{- end }}
 {{- if and (not .Values.pod.readinessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
         {{- with .Values.pod.readinessProbe }}
