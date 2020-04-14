@@ -118,7 +118,7 @@ spec:
           mountPath: {{ $claim.path }}
   {{- end }}
 {{- end }}
-{{- if .Values.pod.imagePullSecret }}
+{{- if .Values.pod.enabled_imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.pod.imagePullSecret }}
 {{- end }}
