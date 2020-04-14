@@ -16,7 +16,7 @@ check_vars:
 
 package:
 	@echo "Packaging monochart" && \
-	helm package stable/mono -d .
+	helm package stable/monochart -d .
 
 publish:
 	make package
