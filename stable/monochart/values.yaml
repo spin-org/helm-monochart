@@ -9,6 +9,7 @@ pod:
   # 'enabled: false' == don't deploy a pod but use the pod config below for Deployment, Cronjob, etc..
   enabled: false
   enabled_port: false
+  enabled_imagePullSecret: false
 
   dnsPolicy: ClusterFirst
   iam_role: false
