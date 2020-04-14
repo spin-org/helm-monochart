@@ -118,6 +118,10 @@ spec:
           mountPath: {{ $claim.path }}
   {{- end }}
 {{- end }}
+{{- if .Values.pod.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.pod.imagePullSecret }}
+{{- end }}
       dnsPolicy: {{ .Values.pod.dnsPolicy }}
       restartPolicy: {{ .Values.pod.restartPolicy }}
       schedulerName: {{ .Values.pod.schedulerName }}
