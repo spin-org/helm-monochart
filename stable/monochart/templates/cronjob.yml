@@ -19,9 +19,7 @@ spec:
     spec:
       template:
         metadata:
-          annotations:
-            iam.amazonaws.com/role: {{ .Values.pod.iam_role }}
-            sidecar.istio.io/inject: "{{ $enabled_istio }}"
+          annotations: {}
           labels:
 {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
             {{ $name }}: {{ $value }}
