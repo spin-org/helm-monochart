@@ -2,8 +2,17 @@ apiVersion: v1
 entries:
   monochart:
   - apiVersion: v1
+    appVersion: 0.5.0
+    created: "2020-06-18T08:45:04.126706+12:00"
+    description: Helm monochart for configuring any kind of spin workloads
+    digest: 3c7db8391401d5bdae5a8efe8b1090c07c4ca37f726211ac75ebc949c75ade2e
+    name: monochart
+    urls:
+    - https://raw.githubusercontent.com/spin-org/helm-monochart/master/monochart-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v1
     appVersion: 0.4.0
-    created: "2020-05-27T10:15:16.871761+12:00"
+    created: "2020-06-18T08:45:04.125868+12:00"
     description: Helm monochart for configuring any kind of spin workloads
     digest: 179d067ebdecd8d42469c0470e7c5487e66b59006ae98e3d0de22f9e5c952d2f
     name: monochart
@@ -12,7 +21,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 0.3.1
-    created: "2020-05-27T10:15:16.870942+12:00"
+    created: "2020-06-18T08:45:04.124537+12:00"
     description: Helm monochart for configuring any kind of spin workloads
     digest: 790f518caadad4558f488a66dfeeb554f18447a74055ac0e2eee91abc2ae5937
     name: monochart
@@ -21,7 +30,7 @@ entries:
     version: 0.3.1
   - apiVersion: v1
     appVersion: 0.3.0
-    created: "2020-05-27T10:15:16.870082+12:00"
+    created: "2020-06-18T08:45:04.122671+12:00"
     description: Helm monochart for configuring any kind of spin workloads
     digest: 18ceebb7f5d300506f3e2447c1a9200bf4e76c39f257db1fad999df3cead119c
     name: monochart
@@ -30,11 +39,11 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2020-05-27T10:15:16.868524+12:00"
+    created: "2020-06-18T08:45:04.119628+12:00"
     description: Helm monochart for configuring any kind of spin workloads
     digest: 0e092bbda1b1f00c47e609e2f2dcc4913a34fbb7cd58938447573dabbf90b89e
     name: monochart
     urls:
     - https://raw.githubusercontent.com/spin-org/helm-monochart/master/monochart-0.2.0.tgz
     version: 0.2.0
-generated: "2020-05-27T10:15:16.867377+12:00"
+generated: "2020-06-18T08:45:04.117511+12:00"
