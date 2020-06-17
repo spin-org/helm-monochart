@@ -87,7 +87,7 @@ spec:
         image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
         imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
         lifecycle:
-        {{ toYaml $lifecycle | indent 10 }}
+{{ toYaml $lifecycle | indent 10 }}
 {{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
         ports:
         - containerPort: {{ .Values.port }}
