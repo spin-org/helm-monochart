@@ -29,6 +29,7 @@ pod:
       - echo 'entrypoint'
       - echo 'override'
 
+  lifecycle: {}
   securityContext: {}
 
   env: rendered_from_helmfile
@@ -73,8 +74,8 @@ deployment:
         annotations: {}
   strategy:
     rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+      maxSurge: 30%
+      maxUnavailable: 0%
     type: RollingUpdate
 
 # Defaults: Horizontal Pod Autoscaler

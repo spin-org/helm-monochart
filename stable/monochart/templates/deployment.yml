@@ -3,6 +3,7 @@
 {{- $enabled_svc := .Values.svc.enabled }}
 {{- $command := .Values.pod.command }}
 {{- $initContainers := .Values.pod.initContainers }}
+{{- $lifecycle := .Values.pod.lifecycle }}
 {{- $enabled_istio := .Values.istio.enabled }}
 
 {{- if or (eq .Values.arch "ing-svc-deployment-hpa") (eq .Values.arch "istio-ing-svc-deployment-hpa") }}
@@ -85,6 +86,8 @@ spec:
 {{- end }}{{- end }}
         image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
         imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
+        lifecycle:
+        {{ toYaml $lifecycle | indent 10 }}
 {{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
         ports:
         - containerPort: {{ .Values.port }}
