@@ -22,12 +22,7 @@ pod:
 
   command:
     override: false
-    command:
-      - "/bin/sh"
-    args:
-      - echo 'example'
-      - echo 'entrypoint'
-      - echo 'override'
+
 
   lifecycle: {}
   securityContext: {}
