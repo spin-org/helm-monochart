@@ -73,6 +73,11 @@ deployment:
       maxUnavailable: 0%
     type: RollingUpdate
 
+# Defaults: Pod disruption budget
+pdb:
+  enabled: false
+  minAvailable: 1
+
 # Defaults: Horizontal Pod Autoscaler
 hpa:
   enabled: false
