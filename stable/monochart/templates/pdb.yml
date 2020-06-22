@@ -1,0 +1,19 @@
+{{- $enabled_pdb := .Values.pdb.enabled }}
+
+{{- if $enabled_pdb }}
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.name }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+      {{ $name }}: {{ $value }}
+      {{- end }}{{- end }}{{- else }}
+      name: {{ .Values.name }}
+  {{- end }}
+
+{{- end }}
