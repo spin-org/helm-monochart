@@ -80,6 +80,11 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
 {{- range $name, $value := .Values.pod.env }}{{- if not (empty $value) }}
         - name: {{ $name | quote }}
           value: {{ $value | quote }}
