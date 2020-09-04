@@ -1,33 +1,33 @@
 {{- $enabled_deployment := .Values.deployment.enabled }}
-{{- $enabled_ing := .Values.ing.enabled }}
-{{- $enabled_svc := .Values.svc.enabled }}
-{{- $command := .Values.pod.command }}
-{{- $initContainers := .Values.pod.initContainers }}
-{{- $lifecycle := .Values.pod.lifecycle }}
-{{- $enabled_istio := .Values.istio.enabled }}
+  {{- $enabled_ing := .Values.ing.enabled }}
+  {{- $enabled_svc := .Values.svc.enabled }}
+  {{- $command := .Values.pod.command }}
+  {{- $initContainers := .Values.pod.initContainers }}
+  {{- $lifecycle := .Values.pod.lifecycle }}
+  {{- $enabled_istio := .Values.istio.enabled }}
 
-{{- if or (eq .Values.arch "ing-svc-deployment-hpa") (eq .Values.arch "istio-ing-svc-deployment-hpa") }}
+  {{- if or (eq .Values.arch "ing-svc-deployment-hpa") (eq .Values.arch "istio-ing-svc-deployment-hpa") }}
   {{- $enabled_deployment = true }}
   {{- $enabled_istio = true }}
   {{- $enabled_ing = true }}
   {{- $enabled_svc = true }}
-{{- end }}
+  {{- end }}
 
-{{- if eq .Values.arch "deployment" }}
+  {{- if eq .Values.arch "deployment" }}
   {{- $enabled_deployment = true }}
-{{- end }}
+  {{- end }}
 
-{{- if $enabled_deployment }}
+  {{- if $enabled_deployment }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+    {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
     {{ $name }}: {{ $value }}
-{{- end }}{{- end }}{{- else }}
+    {{- end }}{{- end }}{{- else }}
     name: {{ .Values.name }}
-{{- end }}
+  {{- end }}
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -36,112 +36,126 @@ spec:
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
   selector:
     matchLabels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+      {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
       {{ $name }}: {{ $value }}
-{{- end }}{{- end }}{{- else }}
+      {{- end }}{{- end }}{{- else }}
       name: {{ .Values.name }}
-{{- end }}
+  {{- end }}
   strategy:
-{{ toYaml .Values.deployment.strategy | indent 4 }}
+  {{ toYaml .Values.deployment.strategy | indent 4 }}
   template:
     metadata:
       annotations:
 
-{{- if .Values.deployment.annotations }}{{- range $name, $value := .Values.deployment.annotations }}{{- if not (empty $value) }}
+        {{- if .Values.deployment.annotations }}{{- range $name, $value := .Values.deployment.annotations }}{{- if not (empty $value) }}
         {{/*  Annottations should be quoted: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/  */}}
         {{ $name }}: {{ $value | quote }}
-{{- end }}{{- end }}{{- end }}
-{{- if .Values.pod.iam_role }}
+        {{- end }}{{- end }}{{- end }}
+        {{- if .Values.pod.iam_role }}
         iam.amazonaws.com/role: {{ .Values.pod.iam_role }}
-{{- end }}
-{{- if $enabled_istio }}
+        {{- end }}
+        {{- if $enabled_istio }}
         sidecar.istio.io/inject: "{{ $enabled_istio }}"
-{{- end }}
+      {{- end }}
       labels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+        {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
         {{ $name }}: {{ $value }}
-{{- end }}{{- end }}{{- else }}
+        {{- end }}{{- end }}{{- else }}
         name: {{ .Values.name }}
-{{- end }}
+    {{- end }}
     spec:
       initContainers:
-{{ toYaml $initContainers | indent 8 }}
+      {{ toYaml $initContainers | indent 8 }}
       containers:
-      - name: {{ .Values.name }}
-{{- if $command.override }}
-        command:
-{{ toYaml $command.command | indent 8 }}
-        args:
-{{ toYaml $command.args | indent 8 }}
-{{- end }}
-        env:
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        - name: DD_AGENT_HOST
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: status.hostIP
-{{- range $name, $value := .Values.pod.env }}{{- if not (empty $value) }}
-        - name: {{ $name | quote }}
-          value: {{ $value | quote }}
-{{- end }}{{- end }}
-        image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
-        imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
-        lifecycle:
-{{ toYaml $lifecycle | indent 10 }}
-{{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
-        ports:
-        - containerPort: {{ .Values.port }}
-    {{- if .Values.additional_ports}}
-        {{- range $additional_port := .Values.additional_ports }}
-        - containerPort: {{ $additional_port.containerPort }}
-          protocol: {{ $additional_port.protocol }}
-        {{- end}}
-    {{- end}}
-{{- end }}
-{{- if and (not .Values.pod.readinessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
-        {{- with .Values.pod.readinessProbe }}
-        readinessProbe:
+        - name: {{ .Values.name }}
+          {{- if $command.override }}
+          command:
+          {{ toYaml $command.command | indent 8 }}
+          args:
+          {{ toYaml $command.args | indent 8 }}
+          {{- end }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            {{- range $name, $value := .Values.pod.env }}{{- if not (empty $value) }}
+            - name: {{ $name | quote }}
+              value: {{ $value | quote }}
+          {{- end }}{{- end }}
+          image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
+          imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
+          lifecycle:
+          {{ toYaml $lifecycle | indent 10 }}
+          {{- if or (.Values.pod.enabled_port) ($enabled_ing) ($enabled_svc) }}
+          ports:
+            - containerPort: {{ .Values.port }}
+            {{- if .Values.additional_ports}}
+            {{- range $additional_port := .Values.additional_ports }}
+            - containerPort: {{ $additional_port.containerPort }}
+              protocol: {{ $additional_port.protocol }}
+          {{- end}}
+          {{- end}}
+          {{- end }}
+          {{- if and (not .Values.pod.readinessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
+          {{- with .Values.pod.readinessProbe }}
+          readinessProbe:
           {{- . | toYaml | nindent 12 }}
-        {{- end }}
-{{- end }}
-{{- if and (not .Values.pod.livenessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
-        {{- with .Values.pod.livenessProbe }}
-        livenessProbe:
+          {{- end }}
+          {{- end }}
+          {{- if and (not .Values.pod.livenessProbeDisabled) (or ($enabled_ing) ($enabled_svc)) }}
+          {{- with .Values.pod.livenessProbe }}
+          livenessProbe:
           {{- . | toYaml | nindent 12 }}
-        {{- end }}
-{{- end }}
-        resources:
-{{ toYaml .Values.pod.resources | indent 10 }}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-{{- if .Values.persistence.enabled }}
-        volumeMounts:
-  {{- range $claim := .Values.persistence.claims }}
-        - name: {{ $claim.name }}
-          mountPath: {{ $claim.path }}
-  {{- end }}
-{{- end }}
-{{- if .Values.pod.enabled_imagePullSecret }}
+          {{- end }}
+          {{- end }}
+          resources:
+          {{ toYaml .Values.pod.resources | indent 10 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            {{- range $claim := .Values.persistence.claims }}
+            - name: {{ $claim.name }}
+              mountPath: {{ $claim.path }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.pod.enabled_imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.pod.imagePullSecret }}
-{{- end }}
+      {{- end }}
       dnsPolicy: {{ .Values.pod.dnsPolicy }}
       restartPolicy: {{ .Values.pod.restartPolicy }}
       schedulerName: {{ .Values.pod.schedulerName }}
       securityContext:
-{{ toYaml .Values.pod.securityContext | indent 8 }}
+      {{ toYaml .Values.pod.securityContext | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
-{{- if .Values.persistence.enabled }}
+      {{- if .Values.persistence.enabled }}
       volumes:
-  {{- range $claim := .Values.persistence.claims }}
-      - name: {{ $claim.name }}
-        persistentVolumeClaim:
-          claimName: {{ $claim.name }}
+        {{- range $claim := .Values.persistence.claims }}
+        - name: {{ $claim.name }}
+          persistentVolumeClaim:
+            claimName: {{ $claim.name }}
   {{- end }}
-{{- end }}
-{{- end }}
+  {{- end }}
+  {{- end }}
