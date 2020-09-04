@@ -57,7 +57,7 @@ spec:
         sidecar.istio.io/inject: "{{ $enabled_istio }}"
 {{- end }}
       labels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+{{- if .Values.deployment.labels }}{{- range $name, $value := .Values.deployment.labels }}{{- if not (empty $value) }}
         {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
         name: {{ .Values.name }}
@@ -83,17 +83,17 @@ spec:
           valueFrom:
             fieldRef:
               apiVersion: v1
-              fieldPath: metadata.labels['tags.datadoghq.com/env']
+              fieldPath: metadata.annotations['tags.datadoghq.com/env']
         - name: DD_SERVICE
           valueFrom:
             fieldRef:
               apiVersion: v1
-              fieldPath: metadata.labels['tags.datadoghq.com/service']
+              fieldPath: metadata.annotations['tags.datadoghq.com/service']
         - name: DD_VERSION
           valueFrom:
             fieldRef:
               apiVersion: v1
-              fieldPath: metadata.labels['tags.datadoghq.com/version']
+              fieldPath: metadata.annotations['tags.datadoghq.com/version']
         - name: DD_AGENT_HOST
           valueFrom:
             fieldRef:
