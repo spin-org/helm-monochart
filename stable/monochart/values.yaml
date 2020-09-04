@@ -78,6 +78,10 @@ pdb:
   enabled: false
   minAvailable: 1
 
+# Defaults: configmap
+configmap:
+  enabled: false
+
 # Defaults: Horizontal Pod Autoscaler
 hpa:
   enabled: false
