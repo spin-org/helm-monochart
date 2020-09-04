@@ -32,7 +32,7 @@ spec:
     targetPort: {{ .targetPort }}
 {{- end }}
   selector:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+{{- if .Values.matchLabels }}{{- range $name, $value := .Values.matchLabels }}{{- if not (empty $value) }}
     {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
     name: {{ .Values.name }}
