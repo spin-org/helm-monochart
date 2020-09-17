@@ -135,14 +135,18 @@ spec:
         terminationMessagePolicy: File
 {{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
         volumeMounts:
-  {{- range $claim := .Values.persistence.claims }}
+  {{- if .Values.persistence.enabled }}
+    {{- range $claim := .Values.persistence.claims }}
         - name: {{ $claim.name }}
           mountPath: {{ $claim.path }}
+    {{- end }}
   {{- end }}
-  {{- range $configmap := .Values.configmap.configs }}
+  {{- if .Values.configmap.enabled }}
+    {{- range $configmap := .Values.configmap.configs }}
         - name: {{ $configmap.name }}-configmap
           mountPath: {{ $configmap.path }}
-  {{- end }}
+    {{- end }}
+  {{- end}}
 {{- end }}
 {{- if .Values.pod.enabled_imagePullSecret }}
       imagePullSecrets:
@@ -156,16 +160,20 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
 {{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
       volumes:
-  {{- range $claim := .Values.persistence.claims }}
+  {{- if .Values.persistence.enabled }}
+    {{- range $claim := .Values.persistence.claims }}
       - name: {{ $claim.name }}
         persistentVolumeClaim:
           claimName: {{ $claim.name }}
+    {{- end }}
   {{- end }}
+  {{- if .Values.configmap.enabled }}
   {{- range $configmap := .Values.configmap.configs }}
       - name: {{ $configmap.name }}-configmap
         configMap:
           defaultMode: 420
           name: {{ $configmap.name }}
+  {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}
