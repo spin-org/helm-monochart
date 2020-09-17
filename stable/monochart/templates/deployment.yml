@@ -133,7 +133,7 @@ spec:
 {{ toYaml .Values.pod.resources | indent 10 }}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
-{{- if .Values.persistence.enabled }}
+{{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
         volumeMounts:
   {{- range $claim := .Values.persistence.claims }}
         - name: {{ $claim.name }}
@@ -154,7 +154,7 @@ spec:
       securityContext:
 {{ toYaml .Values.pod.securityContext | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
-{{- if .Values.persistence.enabled }}
+{{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
       volumes:
   {{- range $claim := .Values.persistence.claims }}
       - name: {{ $claim.name }}
