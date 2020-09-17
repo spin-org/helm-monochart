@@ -83,6 +83,7 @@ configmap:
   enabled: false
   configs:
     - name: dummy
+      namespace: dummy
       path: /tmp/dummy
 
 

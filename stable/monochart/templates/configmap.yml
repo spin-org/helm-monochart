@@ -7,7 +7,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ $configmap.name }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ $configmap.namespace }}
   labels:
     {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
     {{ $name }}: {{ $value }}
