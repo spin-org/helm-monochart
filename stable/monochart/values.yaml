@@ -84,6 +84,8 @@ configmap:
   configs:
     - name: dummy
       namespace: dummy
+      filename: foo
+      file_content: bar
       path: /tmp/dummy
 
 
