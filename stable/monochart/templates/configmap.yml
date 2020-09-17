@@ -4,15 +4,14 @@
   {{- range $configmap := .Values.configmap.configs }}
 ---
 apiVersion: v1
+data:
+  {{ $configmap.filename }}: |
+  {{ $configmap.file_content }}
 kind: ConfigMap
 metadata:
   name: {{ $configmap.name }}
   namespace: {{ $configmap.namespace }}
   labels:
-    {{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
-    {{ $name }}: {{ $value }}
-    {{- end }}{{- end }}{{- else }}
     name: {{ $configmap.name }}
-    {{- end }}
   {{- end }}
 {{- end }}
