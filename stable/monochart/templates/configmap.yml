@@ -6,7 +6,7 @@
 apiVersion: v1
 data:
   {{ $configmap.filename }}: |
-    {{ $configmap.file_content }}
+{{ toYaml $configmap.file_content | indent 4 }}
 kind: ConfigMap
 metadata:
   name: {{ $configmap.name }}
