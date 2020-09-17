@@ -139,6 +139,10 @@ spec:
         - name: {{ $claim.name }}
           mountPath: {{ $claim.path }}
   {{- end }}
+  {{- range $configmap := .Values.configmap.configs }}
+        - name: {{ $configmap.name }}-configmap
+          mountPath: {{ $configmap.path }}
+  {{- end }}
 {{- end }}
 {{- if .Values.pod.enabled_imagePullSecret }}
       imagePullSecrets:
@@ -156,6 +160,12 @@ spec:
       - name: {{ $claim.name }}
         persistentVolumeClaim:
           claimName: {{ $claim.name }}
+  {{- end }}
+  {{- range $configmap := .Values.configmap.configs }}
+      - name: {{ $configmap.name }}-configmap
+        configMap:
+          defaultMode: 420
+          name: {{ $configmap.name }}
   {{- end }}
 {{- end }}
 {{- end }}
