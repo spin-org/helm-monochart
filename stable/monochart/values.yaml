@@ -81,6 +81,10 @@ pdb:
 # Defaults: configmap
 configmap:
   enabled: false
+  configs:
+    - name: dummy
+      path: /tmp/dummy
+
 
 # Defaults: Horizontal Pod Autoscaler
 hpa:
