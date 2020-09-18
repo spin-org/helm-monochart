@@ -36,7 +36,7 @@ spec:
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
   selector:
     matchLabels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+{{- if .Values.matchLabels }}{{- range $name, $value := .Values.matchLabels }}{{- if not (empty $value) }}
       {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
       name: {{ .Values.name }}
@@ -46,7 +46,6 @@ spec:
   template:
     metadata:
       annotations:
-
 {{- if .Values.deployment.annotations }}{{- range $name, $value := .Values.deployment.annotations }}{{- if not (empty $value) }}
         {{/*  Annottations should be quoted: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/  */}}
         {{ $name }}: {{ $value | quote }}
@@ -58,7 +57,7 @@ spec:
         sidecar.istio.io/inject: "{{ $enabled_istio }}"
 {{- end }}
       labels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
+{{- if .Values.deployment.labels }}{{- range $name, $value := .Values.deployment.labels }}{{- if not (empty $value) }}
         {{ $name }}: {{ $value }}
 {{- end }}{{- end }}{{- else }}
         name: {{ .Values.name }}
@@ -80,6 +79,21 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        - name: DD_ENV
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['tags.datadoghq.com/env']
+        - name: DD_SERVICE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['tags.datadoghq.com/service']
+        - name: DD_VERSION
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['tags.datadoghq.com/version']
         - name: DD_AGENT_HOST
           valueFrom:
             fieldRef:
@@ -119,12 +133,20 @@ spec:
 {{ toYaml .Values.pod.resources | indent 10 }}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
-{{- if .Values.persistence.enabled }}
+{{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
         volumeMounts:
-  {{- range $claim := .Values.persistence.claims }}
+  {{- if .Values.persistence.enabled }}
+    {{- range $claim := .Values.persistence.claims }}
         - name: {{ $claim.name }}
           mountPath: {{ $claim.path }}
+    {{- end }}
   {{- end }}
+  {{- if .Values.configmap.enabled }}
+    {{- range $configmap := .Values.configmap.configs }}
+        - name: {{ $configmap.name }}-configmap
+          mountPath: {{ $configmap.path }}
+    {{- end }}
+  {{- end}}
 {{- end }}
 {{- if .Values.pod.enabled_imagePullSecret }}
       imagePullSecrets:
@@ -136,12 +158,22 @@ spec:
       securityContext:
 {{ toYaml .Values.pod.securityContext | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
-{{- if .Values.persistence.enabled }}
+{{- if or (.Values.persistence.enabled) (.Values.configmap.enabled) }}
       volumes:
-  {{- range $claim := .Values.persistence.claims }}
+  {{- if .Values.persistence.enabled }}
+    {{- range $claim := .Values.persistence.claims }}
       - name: {{ $claim.name }}
         persistentVolumeClaim:
           claimName: {{ $claim.name }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.configmap.enabled }}
+  {{- range $configmap := .Values.configmap.configs }}
+      - name: {{ $configmap.name }}-configmap
+        configMap:
+          defaultMode: 420
+          name: {{ $configmap.name }}
+  {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}

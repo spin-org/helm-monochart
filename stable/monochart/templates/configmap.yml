@@ -1,17 +1,17 @@
 {{- $enabled_configmap := .Values.configmap.enabled }}
 
 {{- if $enabled_configmap }}
+  {{- range $configmap := .Values.configmap.configs }}
 ---
 apiVersion: v1
+data:
+  {{ $configmap.filename }}: |
+{{ toYaml $configmap.file_content | indent 4 }}
 kind: ConfigMap
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ $configmap.name }}
+  namespace: {{ $configmap.namespace }}
   labels:
-{{- if .Values.labels }}{{- range $name, $value := .Values.labels }}{{- if not (empty $value) }}
-    {{ $name }}: {{ $value }}
-{{- end }}{{- end }}{{- else }}
-    name: {{ .Values.name }}
-{{- end }}
-
+    name: {{ $configmap.name }}
+  {{- end }}
 {{- end }}

@@ -78,6 +78,17 @@ pdb:
   enabled: false
   minAvailable: 1
 
+# Defaults: configmap
+configmap:
+  enabled: false
+  configs:
+    - name: dummy
+      namespace: dummy
+      filename: foo
+      file_content: bar
+      path: /tmp/dummy
+
+
 # Defaults: Horizontal Pod Autoscaler
 hpa:
   enabled: false
