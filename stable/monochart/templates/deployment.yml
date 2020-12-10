@@ -103,6 +103,13 @@ spec:
         - name: {{ $name | quote }}
           value: {{ $value | quote }}
 {{- end }}{{- end }}
+        {{- with .Values.pod.envFromConfigMaps }}
+        envFrom:
+          {{ range $v := .}}
+        - configMapRef:
+            name: {{ $v }}
+          {{- end }}
+        {{- end }}
         image: {{ .Values.pod.image_name }}:{{ .Values.pod.image_tag }}
         imagePullPolicy: {{ .Values.pod.imagePullPolicy }}
         lifecycle:
@@ -143,8 +150,10 @@ spec:
   {{- end }}
   {{- if .Values.configmap.enabled }}
     {{- range $configmap := .Values.configmap.configs }}
+      {{- if not (empty $configmap.filename) }}
         - name: {{ $configmap.name }}-configmap
           mountPath: {{ $configmap.path }}
+      {{- end }}
     {{- end }}
   {{- end}}
 {{- end }}
@@ -169,10 +178,12 @@ spec:
   {{- end }}
   {{- if .Values.configmap.enabled }}
   {{- range $configmap := .Values.configmap.configs }}
+    {{- if not (empty $configmap.filename) }}
       - name: {{ $configmap.name }}-configmap
         configMap:
           defaultMode: 420
           name: {{ $configmap.name }}
+    {{- end }}
   {{- end }}
   {{- end }}
 {{- end }}
