@@ -63,8 +63,14 @@ spec:
         name: {{ .Values.name }}
 {{- end }}
     spec:
+    {{ if .Values.deployment.affinity }}
+      affinity: {{ toYaml .Values.deployment.affinity | nindent 8 }}
+    {{ end }}
       initContainers:
 {{ toYaml $initContainers | indent 8 }}
+    {{ if .Values.deployment.tolerations }}
+      tolerations: {{ toYaml .Values.deployment.tolerations | nindent 8 }}
+    {{ end }}
       containers:
       - name: {{ .Values.name }}
 {{- if $command.override }}
