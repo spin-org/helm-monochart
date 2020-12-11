@@ -65,8 +65,10 @@ deployment:
   progressDeadlineSeconds: 600
   spec:
     template:
+      affinity:  {}
       metadata:
         annotations: {}
+  tolerations: {}  
   strategy:
     rollingUpdate:
       maxSurge: 30%
