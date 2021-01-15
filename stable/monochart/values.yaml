@@ -80,6 +80,10 @@ pdb:
   enabled: false
   minAvailable: 1
 
+# Defaults: ServiceAccount 
+serviceAccount:
+  enabled: false
+
 # Defaults: configmap
 configmap:
   enabled: false
