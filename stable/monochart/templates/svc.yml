@@ -29,6 +29,9 @@ spec:
   - name: {{ .name }}
     port: {{ .port }}
     protocol: {{ .protocol }}
+    {{ if eq .Values.svc.type NodePort }}
+    nodePort: {{ .nodePort }}
+    {{ end }}
     targetPort: {{ .targetPort }}
 {{- end }}
   selector:
